@@ -1,0 +1,4 @@
+# secret variables
+.env
+# enviroments
+/venv
