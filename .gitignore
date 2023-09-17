@@ -1,4 +1,10 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 # secret variables
 .env
 # enviroments
 /venv
+#.log
+*.log
