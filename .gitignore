@@ -8,3 +8,5 @@ __pycache__/
 /venv
 #.log
 *.log
+#.txt
+*.txt
