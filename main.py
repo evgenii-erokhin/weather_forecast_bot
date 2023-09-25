@@ -13,6 +13,9 @@ GISMETIO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
+LATITUDE = os.getenv('LATITUDE')
+LONGITUDE = os.getenv('LONGITUDE')
+
 FORCAST_ENDPOINT = 'https://api.gismeteo.net/v2/weather/forecast/?'
 CURRENT_ENDPOINT = 'https://api.gismeteo.net/v2/weather/current/?'
 TOMOROW = 'aggregate/?'
@@ -75,8 +78,8 @@ def get_api_answer(url: str, days: int = None) -> List[dict]:
     и получив данные прогноза, возвращает ответ в вызванную функцию.
     '''
     payload = {
-        'latitude': 57.7,
-        'longitude': 40.94
+        'latitude': LATITUDE,
+        'longitude': LONGITUDE,
     }
     if days:
         payload['days'] = days
