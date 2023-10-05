@@ -5,13 +5,13 @@ from typing import List
 import requests
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 load_dotenv()
 
 GISMETIO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-
 
 LATITUDE = os.getenv('LATITUDE')
 LONGITUDE = os.getenv('LONGITUDE')
@@ -37,17 +37,6 @@ TEMPERATURE = 4
 WIND_SPEED = 5
 WIND_ORIENTATION = 6
 
-GEO_MAGNIT_DESCRIBE = {
-    1: 'Нет заметных геомагнитных возмущений',
-    2: 'Небольшие геомагниные возмущения',
-    3: 'Слабая геомагнитная буря',
-    4: 'Малая геомагнитная буря',
-    5: 'Умеренная геомагнитная буря',
-    6: 'Сильная геомагнитная буря',
-    7: 'Жесткий геомагнитный шторм',
-    8: 'Экстремальный шторм',
-}
-
 WIND_DIRECTION = {
     0: 'Штиль',
     1: 'Северный',
@@ -61,7 +50,18 @@ WIND_DIRECTION = {
 }
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def special_cases(update: Update, context:
+                        ContextTypes.DEFAULT_TYPE) -> None:
+    '''
+    Функция, которая обрабатывает непредусмотренные команды от пользователя.
+    '''
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Извините, я Вас не понял. Попробуйте выбрать команду из "Menu"'
+    )
+
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     '''
     Функция, которая приветсвует пользователя при старте бота.
     '''
@@ -149,8 +149,6 @@ def parse_weather_data(response: List[dict] or dict,
                     data['wind'].append(response[gap][key]['speed']['m_s'])
                     data['wind_direction'].append(response[gap][key]
                                                   ['direction']['scale_8'])
-                if key == 'gm':
-                    data['gm'].append(response[gap][key])
 
     forecast_data = list(zip(
         data['time'],
@@ -251,10 +249,13 @@ def main():
 
     forecast_weather_tomorow = CommandHandler('weather_tomorow',
                                               get_forecast_tomorow)
+    special_thing = MessageHandler(filters.TEXT, special_cases)
+
     application.add_handler(starting)
     application.add_handler(current_weather)
     application.add_handler(forecast_weather_today)
     application.add_handler(forecast_weather_tomorow)
+    application.add_handler(special_thing)
 
     application.run_polling()
 
