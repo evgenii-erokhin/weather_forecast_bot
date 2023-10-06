@@ -10,12 +10,19 @@
 ### Технологии:
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ### Как запустить:
-1. В корне проекта создать файл .env  и заполните его по шаблону:
+1. Используя BotFather создать телеграм бот.
+2. Через интерфейс BotFather добавить слудующие команды боту.
+   ```
+    /current_weather - погода на текущий момент
+    /weather_today - погода на сегодня
+    /weather_tomorow - погода на завтра
+   ```
+3. В корне проекта создать файл .env  и заполните его по шаблону:
 ```
 GISMETIO_TOKEN=<Ваш токен полученый у Gismeteo> 
 TELEGRAM_TOKEN=<Token Вашего Телеграм бота> 
 ```
-2. В корне проекта создать виртуальное окружение.
+4. В корне проекта создать виртуальное окружение.
 - Win:
   ```
   python -m venv venv
@@ -24,7 +31,7 @@ TELEGRAM_TOKEN=<Token Вашего Телеграм бота>
   ```
   python3 -m venv venv
   ```
-3. Активируйте виртуальное окружение.
+5. Активируйте виртуальное окружение.
 - Win:
   ```
   source venv/Scripts/activate
@@ -33,11 +40,11 @@ TELEGRAM_TOKEN=<Token Вашего Телеграм бота>
   ```
   source venv/bib/activate
   ```
-4. Установить зависимости.
+6. Установить зависимости.
 ```
 pip install requirements.txt
 ```
-5.Запустите исполняемый файл.
+7.Запустите исполняемый файл.
 ```
 python main.py
 ```
