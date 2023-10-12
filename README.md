@@ -12,7 +12,7 @@
 <img src="https://img.shields.io/badge/Python_Telegram_Bot-blue?style=for-the-badge&logo=python telegram bot&logoColor=green"/>
 ### Как запустить:
 1. Используя BotFather создать телеграм бот.
-2. Через интерфейс BotFather добавить слудующие команды боту.
+2. Через интерфейс BotFather добавить следующие команды боту.
    ```
     /current_weather - погода на текущий момент
     /weather_today - погода на сегодня
