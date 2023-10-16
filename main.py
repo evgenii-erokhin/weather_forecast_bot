@@ -265,10 +265,7 @@ async def get_my_coordinates(update: Update,
     '''
     Функция для получения координат.
     Для последующего вычесления погоды по определенной локации.
-    (В планах реализации)
     '''
-    print(update)
-
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Координаты получены'
