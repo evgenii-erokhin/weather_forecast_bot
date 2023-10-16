@@ -1,7 +1,10 @@
+import http
 import logging
 import os
 from typing import List
 
+import exceptions
+from json.decoder import JSONDecodeError
 import requests
 from dotenv import load_dotenv
 from telegram import Update
@@ -13,8 +16,11 @@ load_dotenv()
 GISMETIO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-LATITUDE = os.getenv('LATITUDE')
-LONGITUDE = os.getenv('LONGITUDE')
+# LATITUDE = os.getenv('LATITUDE')
+# LONGITUDE = os.getenv('LONGITUDE')
+
+LATITUDE = 0
+LONGITUDE = 0
 
 FORCAST_ENDPOINT = 'https://api.gismeteo.net/v2/weather/forecast/?'
 CURRENT_ENDPOINT = 'https://api.gismeteo.net/v2/weather/current/?'
@@ -51,7 +57,7 @@ WIND_DIRECTION = {
 
 
 async def special_cases(update: Update, context:
-                        ContextTypes.DEFAULT_TYPE) -> None:
+                        ContextTypes.DEFAULT_TYPE):
     '''
     Функция, которая обрабатывает непредусмотренные команды от пользователя.
     '''
@@ -61,15 +67,37 @@ async def special_cases(update: Update, context:
     )
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     '''
     Функция, которая приветсвует пользователя при старте бота.
     '''
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=('Добро пожаловать! Я бот прогноза погоды. Выбери в Меню'
-              ' интересующий тип прогноза и я пришлю его тебе')
+        text=(
+             'Добро пожаловать! Я бот прогноза погоды. \n\n'
+             'Чтобы узнать прогноз, отправьте мне свою геопозицию. '
+             'Далее выберите в Меню интересующий тип прогноза '
+             'и я пришлю его Вам'
+        )
     )
+
+
+async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    '''
+    Функция получает гео-метку от пользователя через отправку вложения.
+    Возвращает координаты широты и долготы. И отправляет пользователю сообщение
+    об успешности полученых координат.
+    '''
+    global LATITUDE, LONGITUDE
+
+    LATITUDE = update.effective_message.location.latitude
+    LONGITUDE = update.effective_message.location.longitude
+
+    await context.bot.send_message(
+         chat_id=update.effective_chat.id,
+         text='Спасибо, Ваши координаты получены!'
+     )
+    return LATITUDE, LONGITUDE
 
 
 def get_api_answer(url: str, days: int = None) -> List[dict]:
@@ -84,8 +112,22 @@ def get_api_answer(url: str, days: int = None) -> List[dict]:
     if days:
         payload['days'] = days
 
-    request = requests.get(url, headers=HEADERS, params=payload)
-    response = request.json()['response']
+    try:
+        response = requests.get(url, headers=HEADERS, params=payload)
+        if response.status_code != http.HTTPStatus.OK:
+            raise exceptions.IncorrectStatusCode(
+                f'Не корректный статус код {response.status_code}'
+            )
+    except requests.exceptions.ConnectionError as error:
+        raise exceptions.ConnecrionFailed(f'Ошибка соединения - {error}')
+
+    try:
+        response = response.json()['response']
+    except JSONDecodeError as error:
+        raise exceptions.CannotDecodJson(
+            f'json не был декодирован в типы python {error}'
+        )
+
     return response
 
 
@@ -107,7 +149,6 @@ def parse_weather_data(response: List[dict] or dict,
         'temperature': [],
         'wind': [],
         'wind_direction': [],
-        'gm': [],
     }
 
     if isinstance(response, dict):
@@ -126,8 +167,6 @@ def parse_weather_data(response: List[dict] or dict,
                 data['wind'].append(response[key]['speed']['m_s'])
                 data['wind_direction'].append(response[key]
                                               ['direction']['scale_8'])
-            if key == 'gm':
-                data['gm'].append(response[key])
 
     else:
         if offset:
@@ -257,6 +296,7 @@ def main():
                                               get_forecast_tomorow)
     coordinate = MessageHandler(filters.LOCATION, get_my_coordinates)
     special_thing = MessageHandler(filters.TEXT, special_cases)
+    coordinate = MessageHandler(filters.LOCATION, get_coordinate)
 
     application.add_handler(starting)
     application.add_handler(current_weather)
