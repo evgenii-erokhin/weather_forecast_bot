@@ -224,13 +224,19 @@ async def get_forecast_tomorow(update: Update,
     )
 
 
-def get_my_coordinates():
+async def get_my_coordinates(update: Update,
+                             context: ContextTypes.DEFAULT_TYPE):
     '''
     Функция для получения координат.
     Для последующего вычесления погоды по определенной локации.
     (В планах реализации)
     '''
-    pass
+    print(update)
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Координаты получены'
+    )
 
 
 def main():
@@ -249,12 +255,14 @@ def main():
 
     forecast_weather_tomorow = CommandHandler('weather_tomorow',
                                               get_forecast_tomorow)
+    coordinate = MessageHandler(filters.LOCATION, get_my_coordinates)
     special_thing = MessageHandler(filters.TEXT, special_cases)
 
     application.add_handler(starting)
     application.add_handler(current_weather)
     application.add_handler(forecast_weather_today)
     application.add_handler(forecast_weather_tomorow)
+    application.add_handler(coordinate)
     application.add_handler(special_thing)
 
     application.run_polling()
