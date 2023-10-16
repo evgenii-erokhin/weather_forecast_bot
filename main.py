@@ -16,9 +16,6 @@ load_dotenv()
 GISMETIO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-# LATITUDE = os.getenv('LATITUDE')
-# LONGITUDE = os.getenv('LONGITUDE')
-
 LATITUDE = 0
 LONGITUDE = 0
 
