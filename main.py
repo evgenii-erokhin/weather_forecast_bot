@@ -16,8 +16,8 @@ load_dotenv()
 GISMETIO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-LATITUDE = 0
-LONGITUDE = 0
+LATITUDE = os.getenv('LATITUDE')
+LONGITUDE = os.getenv('LONGITUDE')
 
 FORCAST_ENDPOINT = 'https://api.gismeteo.net/v2/weather/forecast/?'
 CURRENT_ENDPOINT = 'https://api.gismeteo.net/v2/weather/current/?'
@@ -260,18 +260,6 @@ async def get_forecast_tomorow(update: Update,
     )
 
 
-async def get_my_coordinates(update: Update,
-                             context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция для получения координат.
-    Для последующего вычесления погоды по определенной локации.
-    '''
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Координаты получены'
-    )
-
-
 def main():
     logging.basicConfig(
         level=logging.DEBUG,
@@ -288,7 +276,6 @@ def main():
 
     forecast_weather_tomorow = CommandHandler('weather_tomorow',
                                               get_forecast_tomorow)
-    coordinate = MessageHandler(filters.LOCATION, get_my_coordinates)
     special_thing = MessageHandler(filters.TEXT, special_cases)
     coordinate = MessageHandler(filters.LOCATION, get_coordinate)
 
