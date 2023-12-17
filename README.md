@@ -1,7 +1,7 @@
 # Weather Forecast Bot
 
 ### Описание:
-Телеграм бот для получения уведомлений об изменениях в погоде через <a href='https://www.gismeteo.ru/api/'>API Gismeteo </a>.
+Телеграм бот для получения данных прогноза погоды через <a href='https://www.gismeteo.ru/api/'>API Gismeteo </a>.
 <br>
 Прогноз погоды можно получить используя команды из меню бота:
 * `/current_weather` - погода на текущий момент
