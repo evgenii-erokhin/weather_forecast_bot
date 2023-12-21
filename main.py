@@ -23,15 +23,19 @@ FORCAST_ENDPOINT = 'https://api.gismeteo.net/v2/weather/forecast/?'
 CURRENT_ENDPOINT = 'https://api.gismeteo.net/v2/weather/current/?'
 TOMOROW = 'aggregate/?'
 HEADERS = {'X-Gismeteo-Token': GISMETIO_TOKEN}
+
 ONE_DAY = 1
 TWO_DAYS = 2
 
+# The offset that is used to get the date, time, and data for the next day
 OFFSET = 8
 OFFSET_TIME = 11
 OFFSET_DATE = 10
 
 ELEMENT = 0
 
+# Сonstants of indexes for which we receive weather forecast data
+# from the endpoint.
 DATE = 0
 DESCRIPTION = 1
 HUMIDITY = 2
@@ -40,6 +44,7 @@ TEMPERATURE = 4
 WIND_SPEED = 5
 WIND_ORIENTATION = 6
 
+# Dictionary of answers describing the wind.
 WIND_DIRECTION = {
     0: 'Штиль',
     1: 'Северный',
