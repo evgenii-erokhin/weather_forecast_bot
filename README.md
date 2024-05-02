@@ -7,7 +7,10 @@
 * `/current_weather` - погода на текущий момент
 * `/weather_today` - погода на сегодня
 * `/weather_tomorow` - погода на завтра
- 
+
+### Планы по реализации:
+- добавить базу данных для хранения координат пользователей
+   
 ### Технологии:
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 <img src="https://img.shields.io/badge/Python_Telegram_Bot-blue?style=for-the-badge&logo=python telegram bot&logoColor=green"/>
