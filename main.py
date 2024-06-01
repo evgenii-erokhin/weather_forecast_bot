@@ -11,18 +11,18 @@ from telegram import Update
 from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
+from coordinates_db import create_database, write_data_to_database, return_coordinates_from_database
+
+
 load_dotenv()
 
-GISMETIO_TOKEN = os.getenv('API_KEY')
+GISMETEO_TOKEN = os.getenv('API_KEY')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-
-LATITUDE = os.getenv('LATITUDE')
-LONGITUDE = os.getenv('LONGITUDE')
 
 FORCAST_ENDPOINT = 'https://api.gismeteo.net/v2/weather/forecast/?'
 CURRENT_ENDPOINT = 'https://api.gismeteo.net/v2/weather/current/?'
-TOMOROW = 'aggregate/?'
-HEADERS = {'X-Gismeteo-Token': GISMETIO_TOKEN}
+TOMORROW = 'aggregate/?'
+HEADERS = {'X-Gismeteo-Token': GISMETEO_TOKEN}
 ONE_DAY = 1
 TWO_DAYS = 2
 
@@ -58,8 +58,9 @@ async def special_cases(update: Update, context:
     '''
     Функция, которая обрабатывает непредусмотренные команды от пользователя.
     '''
+    chat_id = update.effective_chat.id
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+        chat_id=chat_id,
         text='Извините, я Вас не понял. Попробуйте выбрать команду из "Menu"'
     )
 
@@ -68,8 +69,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     '''
     Функция, которая приветсвует пользователя при старте бота.
     '''
+    chat_id = update.effective_chat.id
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+        chat_id=chat_id,
         text=(
              'Добро пожаловать! Я бот прогноза погоды. \n\n'
              'Чтобы узнать прогноз, отправьте мне свою геопозицию. '
@@ -81,30 +83,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     '''
-    Функция получает гео-метку от пользователя через отправку вложения.
-    Возвращает координаты широты и долготы. И отправляет пользователю сообщение
-    об успешности полученых координат.
+    Функция получает координаты пользователя через отправку вложения
+    и записывает их в базу данных. Отправляет пользователю сообщение
+    об успешности полученных координат.
     '''
-    global LATITUDE, LONGITUDE
 
-    LATITUDE = update.effective_message.location.latitude
-    LONGITUDE = update.effective_message.location.longitude
+    latitude = update.effective_message.location.latitude
+    longitude = update.effective_message.location.longitude
+    chat_id = update.effective_chat.id
+
+    write_data_to_database(chat_id, latitude, longitude)
 
     await context.bot.send_message(
-         chat_id=update.effective_chat.id,
+         chat_id=chat_id,
          text='Спасибо, Ваши координаты получены!'
      )
-    return LATITUDE, LONGITUDE
 
 
-def get_api_answer(url: str, days: int = None) -> List[dict]:
+def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
     '''
     Функция отправляет GET запрос на эндпоинт сервиса Gismeteo
     и получив данные прогноза, возвращает ответ в вызванную функцию.
     '''
+    latitude, longitude = return_coordinates_from_database(chat_id)
     payload = {
-        'latitude': LATITUDE,
-        'longitude': LONGITUDE,
+        'latitude': latitude,
+        'longitude': longitude,
     }
     if days:
         payload['days'] = days
@@ -116,7 +120,7 @@ def get_api_answer(url: str, days: int = None) -> List[dict]:
                 f'Не корректный статус код {response.status_code}'
             )
     except requests.exceptions.ConnectionError as error:
-        raise exceptions.ConnecrionFailed(f'Ошибка соединения - {error}')
+        raise exceptions.ConnectionFailed(f'Ошибка соединения - {error}')
 
     try:
         response = response.json()['response']
@@ -131,12 +135,12 @@ def get_api_answer(url: str, days: int = None) -> List[dict]:
 def parse_weather_data(response: List[dict] or dict,
                        offset: bool) -> List[tuple]:
     '''
-    Функция получает ответ сервера в виде словаря или списока словарей.
+    Функция получает ответ сервера в виде словаря или списка словарей.
     Обрабатывает ответ сервера агрегируя данные за определённый
-    промежуток времени, возвращая список с сгруппированными данными.
+    промежуток времени, возвращая список со сгруппированными данными.
 
     Если запрашивается прогноз на завтра, применяется смещение
-    из-за особености API, которое передает данные вместе с текущем днём.
+    из-за особенности API, которое передает данные вместе с текущем днём.
     '''
     data = {
         'time': [],
@@ -200,7 +204,7 @@ def parse_weather_data(response: List[dict] or dict,
 
 def prepare_message(data: List[tuple]) -> str:
     '''
-    Функция, котороя получив агрегированые данные,
+    Функция, которая получив агрегированные данные,
     возвращает сформированное сообщение прогноза погоды.
     '''
     forecast = f'Погода на {data[ELEMENT][DATE][:OFFSET_DATE]}:\n'
@@ -223,11 +227,12 @@ async def get_current_weather(update: Update,
     '''
     Функция для агрегирующая данные погоды на текущей момент.
     '''
-    response = get_api_answer(CURRENT_ENDPOINT)
+    chat_id = update.effective_chat.id
+    response = get_api_answer(chat_id, CURRENT_ENDPOINT)
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+        chat_id=chat_id,
         text=message
     )
 
@@ -237,25 +242,27 @@ async def get_weather_forecast_today(update: Update,
     '''
     Функция передающая прогноз погоды на весь сегодняшний день.
     '''
-    response = get_api_answer(FORCAST_ENDPOINT, ONE_DAY)
+    chat_id = update.effective_chat.id
+    response = get_api_answer(chat_id, FORCAST_ENDPOINT, ONE_DAY)
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+        chat_id=chat_id,
         text=message
     )
 
 
-async def get_forecast_tomorow(update: Update,
-                               context: ContextTypes.DEFAULT_TYPE):
+async def get_forecast_tomorrow(update: Update,
+                                context: ContextTypes.DEFAULT_TYPE):
     '''
     Функция передающая прогноз погоды на завтра.
     '''
-    response = get_api_answer(FORCAST_ENDPOINT + TOMOROW, TWO_DAYS)
+    chat_id = update.effective_chat.id
+    response = get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, TWO_DAYS)
     data = parse_weather_data(response, True)
     message = prepare_message(data)
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+        chat_id=chat_id,
         text=message
     )
 
@@ -267,6 +274,8 @@ def main():
         filemode='w',
         format='%(asctime)s - %(levelname)s - %(message)s - %(name)s'
     )
+
+    create_database()
     application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     starting = CommandHandler('start', start)
     current_weather = CommandHandler('current_weather', get_current_weather)
@@ -274,15 +283,15 @@ def main():
     forecast_weather_today = CommandHandler('weather_today',
                                             get_weather_forecast_today)
 
-    forecast_weather_tomorow = CommandHandler('weather_tomorow',
-                                              get_forecast_tomorow)
+    forecast_weather_tomorrow = CommandHandler('weather_tomorrow',
+                                               get_forecast_tomorrow)
     special_thing = MessageHandler(filters.TEXT, special_cases)
     coordinate = MessageHandler(filters.LOCATION, get_coordinate)
 
     application.add_handler(starting)
     application.add_handler(current_weather)
     application.add_handler(forecast_weather_today)
-    application.add_handler(forecast_weather_tomorow)
+    application.add_handler(forecast_weather_tomorrow)
     application.add_handler(coordinate)
     application.add_handler(special_thing)
 

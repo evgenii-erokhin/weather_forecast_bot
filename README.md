@@ -5,7 +5,7 @@
 Прогноз погоды можно получить используя команды:
 * `/current_weather` - погода на текущий момент
 * `/weather_today` - погода на сегодня
-* `/weather_tomorow` - погода на завтра
+* `/weather_tomorrow` - погода на завтра
  
 ### Технологии:
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -17,11 +17,11 @@
    ```
     /current_weather - погода на текущий момент
     /weather_today - погода на сегодня
-    /weather_tomorow - погода на завтра
+    /weather_tomorrow - погода на завтра
    ```
 3. В корне проекта создать файл .env  и заполните его по шаблону:
 ```
-GISMETIO_TOKEN=<Ваш токен полученый у Gismeteo> 
+GISMETEO_TOKEN=<Ваш токен полученый у Gismeteo> 
 TELEGRAM_TOKEN=<Token Вашего Телеграм бота> 
 ```
 4. В корне проекта создать виртуальное окружение.
