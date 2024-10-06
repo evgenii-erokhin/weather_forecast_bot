@@ -1,0 +1,4 @@
+services:
+  weather_forecasting_bot:
+    build: ./
+    env_file: .env

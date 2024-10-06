@@ -12,5 +12,3 @@ __pycache__/
 *.txt
 # .db
 *.db
-# .idea
-.idea
