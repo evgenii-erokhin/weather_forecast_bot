@@ -9,32 +9,39 @@
  
 ### Технологии:
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-<img src="https://img.shields.io/badge/Python_Telegram_Bot-blue?style=for-the-badge&logo=python telegram bot&logoColor=green"/>
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+<img src="https://img.shields.io/badge/Python_Telegram_Bot-blue?style=for-the-badge&logo=python telegram bot&logoColor=green"/>
 
-### Как запустить:
-1. Используя BotFather создать телеграм бот.
-2. Через интерфейс BotFather добавить следующие команды боту.
-   ```
+
+### Подготовка к использованию:
+1. Используя `BotFather` создать телеграм бот.
+2. Через интерфейс `BotFather` добавить следующие команды боту.
+    ```
     /current_weather - погода на текущий момент
     /weather_today - погода на сегодня
     /weather_tomorrow - погода на завтра
-   ```
-3. В корне проекта создать файл .env  и заполните его по шаблону:
-```
-GISMETEO_TOKEN=<Ваш токен полученый у Gismeteo> 
-TELEGRAM_TOKEN=<Token Вашего Телеграм бота> 
-```
-4. В корне проекта создать виртуальное окружение.
+    ```
+3. В корне проекта создать файл .env и заполните его по шаблону:
+    ```
+    GISMETEO_TOKEN=<Ваш токен полученый у Gismeteo> 
+    TELEGRAM_TOKEN=<Token Вашего Телеграм бота> 
+    ```
+### Как запустить используя Docker:
+1. Находясь в директории с файлом `docker-compose.yml` введите в терминале команду:
+    ```commandline
+    docker compose up -d
+    ```
+### Как запустить локально:
+1. В корне проекта создать виртуальное окружение.
 - Win:
-  ```
-  python -m venv venv
-  ```
-- Linux/MacOs:
-  ```
-  python3 -m venv venv
-  ```
-5. Активируйте виртуальное окружение.
+    ```
+    python -m venv venv
+    ```
+    - Linux/MacOs:
+    ```
+    python3 -m venv venv
+    ```
+2. Активируйте виртуальное окружение.
 - Win:
   ```
   source venv/Scripts/activate
@@ -43,16 +50,17 @@ TELEGRAM_TOKEN=<Token Вашего Телеграм бота>
   ```
   source venv/bib/activate
   ```
-6. Установить зависимости.
-```
-pip install requirements.txt
-```
-7. Запустите исполняемый файл.
-```
-python main.py
-```
-8. Чтобы получить прогноз, откройте ТГ бот, через вложение отправьте текущие координаты используя встроенную функцию в Телеграмм.
-9. Выберите одну из  команд для получения прогноза.
+3. Установить зависимости.
+    ```
+    pip install requirements.txt
+    ```
+4. Запустите исполняемый файл.
+    ```
+    python main.py
+    ```
+### Работа с ботом
+1. Чтобы получить прогноз, откройте ТГ бот, через вложение отправьте текущие координаты используя встроенную функцию в Телеграмм.
+2. Выберите одну из команд для получения прогноза.
     ## Пример:
    **команда**: `/current_weather`
    <br> 
