@@ -52,7 +52,7 @@
   ```
 3. Установить зависимости.
     ```
-    pip install requirements.txt
+    pip install -r requirements.txt
     ```
 4. Запустите исполняемый файл.
     ```
