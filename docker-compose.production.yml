@@ -1,0 +1,6 @@
+version: '3.8'
+
+services:
+  weather_forecasting_bot:
+    image: jackdemario/weather_forecasting_bot
+    env_file: .env

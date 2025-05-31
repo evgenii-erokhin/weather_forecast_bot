@@ -6,7 +6,9 @@ __pycache__/
 .env
 # enviroments
 /venv
-#.log
+# .log
 *.log
-#.txt
+# .txt
 *.txt
+# .db
+*.db
