@@ -1,6 +1,7 @@
 import http
 import logging
 import os
+import sys
 from typing import List
 
 import exceptions
@@ -268,8 +269,7 @@ async def get_forecast_tomorow(update: Update,
 def main():
     logging.basicConfig(
         level=logging.DEBUG,
-        filename='main.log',
-        filemode='w',
+        stream=sys.stdout,
         format='%(asctime)s - %(levelname)s - %(message)s - %(name)s'
     )
     application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
