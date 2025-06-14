@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiohttp>=3.12.13",
     "dotenv>=0.9.9",
     "python-telegram-bot>=22.1",
-    "requests>=2.32.4",
 ]

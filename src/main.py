@@ -6,7 +6,7 @@ from typing import List
 
 import exceptions
 from json.decoder import JSONDecodeError
-import requests
+import aiohttp
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
@@ -110,7 +110,7 @@ async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
      )
 
 
-def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
+async def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
     """
     Отправляет GET-запрос к API Gismeteo и возвращает данные прогноза погоды.
 
@@ -131,22 +131,25 @@ def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
         payload['days'] = days
 
     try:
-        response = requests.get(url, headers=HEADERS, params=payload)
-        if response.status_code != http.HTTPStatus.OK:
-            raise exceptions.IncorrectStatusCode(
-                f'Не корректный статус код {response.status_code}'
-            )
-    except requests.exceptions.ConnectionError as error:
-        raise exceptions.ConnectionFailed(f'Ошибка соединения - {error}')
-
-    try:
-        response = response.json()['response']
-    except JSONDecodeError as error:
-        raise exceptions.CannotDecodJson(
-            f'json не был декодирован в типы python {error}'
-        )
-
-    return response
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=HEADERS, params=payload) as response:
+                if response.status != http.HTTPStatus.OK:
+                    logging.error(f"API Gismeteo вернул статус ответа отличный от 200 OK. Полученый статус код - {response.status}")
+                    raise exceptions.IncorrectStatusCode(
+                        f'Не корректный статус код {response.status}'
+                    )
+                try:
+                    json_response = await response.json()
+                    logging.debug("JSON успешно распарсен")
+                except (aiohttp.ContentTypeError, JSONDecodeError) as error:
+                    logging.error(f"Ошибка декодирования JSON от Gismeteo: {error}")
+                    raise exceptions.CannotDecodJson(
+                        f'json не был декодирован в типы python {error}'
+                    )
+            return json_response.get("response")
+    except aiohttp.ClientError as error:
+        logging.error("Не удалось установить соединение с API Gismeteo")
+        raise exceptions.ConnectionFailed(f"Ошибка соединения - {error}")
 
 
 def parse_weather_data(response: List[dict] or dict,
@@ -250,7 +253,7 @@ async def get_current_weather(update: Update,
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = get_api_answer(chat_id, CURRENT_ENDPOINT)
+    response = await get_api_answer(chat_id, CURRENT_ENDPOINT)
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     await context.bot.send_message(
@@ -269,7 +272,7 @@ async def get_weather_forecast_today(update: Update,
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = get_api_answer(chat_id, FORCAST_ENDPOINT, ONE_DAY)
+    response = await get_api_answer(chat_id, FORCAST_ENDPOINT, ONE_DAY)
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     await context.bot.send_message(
@@ -288,7 +291,7 @@ async def get_forecast_tomorrow(update: Update,
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, TWO_DAYS)
+    response = await get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, TWO_DAYS)
     data = parse_weather_data(response, True)
     message = prepare_message(data)
     await context.bot.send_message(
