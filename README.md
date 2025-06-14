@@ -32,31 +32,26 @@
     docker compose up -d
     ```
 ### Как запустить локально:
-1. В корне проекта создать виртуальное окружение.
-- Win:
+1. Установите пакетный менеджер `UV`
     ```
-    python -m venv venv
+    https://docs.astral.sh/uv/getting-started/installation/
     ```
-    - Linux/MacOs:
+2. Инициализируйте проект в `UV`
     ```
-    python3 -m venv venv
+    uv init
     ```
-2. Активируйте виртуальное окружение.
-- Win:
-  ```
-  source venv/Scripts/activate
-  ```
-- Linux/MacOs:
-  ```
-  source venv/bib/activate
-  ```
+
 3. Установить зависимости.
     ```
-    pip install -r requirements.txt
+    uv sync --locked
     ```
-4. Запустите исполняемый файл.
+4. Перейдите в директорию `./src`
+   ```
+   cd ./src
+   ```
+5. Запустите проект.
     ```
-    python main.py
+    uv run main.py
     ```
 ### Работа с ботом
 1. Чтобы получить прогноз, откройте ТГ бот, через вложение отправьте текущие координаты используя встроенную функцию в Телеграмм.
