@@ -56,9 +56,13 @@ WIND_DIRECTION = {
 
 async def special_cases(update: Update, context:
                         ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция, которая обрабатывает непредусмотренные команды от пользователя.
-    '''
+    """
+    Обрабатывает непредусмотренные команды от пользователя.
+
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     chat_id = update.effective_chat.id
     await context.bot.send_message(
         chat_id=chat_id,
@@ -67,9 +71,13 @@ async def special_cases(update: Update, context:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция, которая приветсвует пользователя при старте бота.
-    '''
+    """
+    Обработчик команды /start, отправляющий приветственное сообщение пользователю.
+
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     chat_id = update.effective_chat.id
     await context.bot.send_message(
         chat_id=chat_id,
@@ -83,12 +91,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция получает координаты пользователя через отправку вложения
-    и записывает их в базу данных. Отправляет пользователю сообщение
-    об успешности полученных координат.
-    '''
+    """
+    Обрабатывает отправку геопозиции пользователем и сохраняет координаты в базу данных.
 
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     latitude = update.effective_message.location.latitude
     longitude = update.effective_message.location.longitude
     chat_id = update.effective_chat.id
@@ -102,10 +111,17 @@ async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
-    '''
-    Функция отправляет GET запрос на эндпоинт сервиса Gismeteo
-    и получив данные прогноза, возвращает ответ в вызванную функцию.
-    '''
+    """
+    Отправляет GET-запрос к API Gismeteo и возвращает данные прогноза погоды.
+
+    :param chat_id: ID чата Telegram, откуда извлекаются координаты
+    :param url: URL-эндпоинт запроса
+    :param days: Количество дней прогноза (опционально)
+    :return: Список словарей с погодными данными
+    :raise exceptions.IncorrectStatusCode: Если статус ответа не 200 OK
+    :raise exceptions.ConnectionFailed: Если не удалось установить соединение
+    :raise exceptions.CannotDecodJson: Если не удалось декодировать JSON-ответ
+    """
     latitude, longitude = return_coordinates_from_database(chat_id)
     payload = {
         'latitude': latitude,
@@ -135,14 +151,13 @@ def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
 
 def parse_weather_data(response: List[dict] or dict,
                        offset: bool) -> List[tuple]:
-    '''
-    Функция получает ответ сервера в виде словаря или списка словарей.
-    Обрабатывает ответ сервера агрегируя данные за определённый
-    промежуток времени, возвращая список со сгруппированными данными.
+    """
+    Парсит погодные данные из ответа API.
 
-    Если запрашивается прогноз на завтра, применяется смещение
-    из-за особенности API, которое передает данные вместе с текущем днём.
-    '''
+    :param response: Ответ API Gismeteo
+    :param offset: Применять ли смещение для прогноза на завтра
+    :return: Список кортежей с погодными данными
+    """
     data = {
         'time': [],
         'description': [],
@@ -204,10 +219,12 @@ def parse_weather_data(response: List[dict] or dict,
 
 
 def prepare_message(data: List[tuple]) -> str:
-    '''
-    Функция, которая получив агрегированные данные,
-    возвращает сформированное сообщение прогноза погоды.
-    '''
+    """
+    Формирует текстовое сообщение с прогнозом погоды.
+
+    :param data: Список кортежей с погодными данными
+    :return: Форматированное сообщение для отправки пользователю
+    """
     forecast = f'Погода на {data[ELEMENT][DATE][:OFFSET_DATE]}:\n'
 
     for row in data:
@@ -225,9 +242,13 @@ def prepare_message(data: List[tuple]) -> str:
 
 async def get_current_weather(update: Update,
                               context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция для агрегирующая данные погоды на текущей момент.
-    '''
+    """
+    Получает и отправляет текущую погоду.
+
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     chat_id = update.effective_chat.id
     response = get_api_answer(chat_id, CURRENT_ENDPOINT)
     data = parse_weather_data(response, False)
@@ -240,9 +261,13 @@ async def get_current_weather(update: Update,
 
 async def get_weather_forecast_today(update: Update,
                                      context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция передающая прогноз погоды на весь сегодняшний день.
-    '''
+    """
+    Получает и отправляет прогноз погоды на сегодня.
+
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     chat_id = update.effective_chat.id
     response = get_api_answer(chat_id, FORCAST_ENDPOINT, ONE_DAY)
     data = parse_weather_data(response, False)
@@ -255,9 +280,13 @@ async def get_weather_forecast_today(update: Update,
 
 async def get_forecast_tomorrow(update: Update,
                                 context: ContextTypes.DEFAULT_TYPE):
-    '''
-    Функция передающая прогноз погоды на завтра.
-    '''
+    """
+    Получает и отправляет прогноз погоды на завтра.
+
+    :param update: Объект Update, содержащий информацию о событии Telegram
+    :param context: Контекст выполнения, предоставляет доступ к bot и другим полезным свойствам
+    :return: None
+    """
     chat_id = update.effective_chat.id
     response = get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, TWO_DAYS)
     data = parse_weather_data(response, True)
@@ -269,6 +298,11 @@ async def get_forecast_tomorrow(update: Update,
 
 
 def main():
+    """
+    Основная функция запуска бота.
+
+    :return: None
+    """
     logging.basicConfig(
         level=logging.DEBUG,
         stream=sys.stdout,
