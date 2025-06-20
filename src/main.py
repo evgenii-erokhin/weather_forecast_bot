@@ -2,18 +2,18 @@ import http
 import logging
 import os
 import sys
+from json.decoder import JSONDecodeError
 from typing import List
 
-import exceptions
-from json.decoder import JSONDecodeError
 import aiohttp
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
-from coordinates_db import create_database, write_data_to_database, return_coordinates_from_database
-
+import exceptions
+from coordinates_db import (create_database, return_coordinates_from_database,
+                            write_data_to_database)
 
 load_dotenv()
 
