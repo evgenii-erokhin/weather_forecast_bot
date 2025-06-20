@@ -23,7 +23,7 @@ jobs:
 
         - name: Install flake8 and isort
           run: |
-            uv pip install flake8 isort
+            uv add install flake8 isort
 
         - name: Run flake8
           run: |
