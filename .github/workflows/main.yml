@@ -23,7 +23,7 @@ jobs:
 
         - name: Install flake8 and isort
           run: |
-            uv add install flake8 isort
+            uv add flake8 isort
 
         - name: Run flake8
           run: |
@@ -69,3 +69,10 @@ jobs:
             context: .
             push: true
             tags: ${{ secrets.DOCKERHUB_USERNAME }}/weather-forecast-bot:latest
+
+    deploy_to_remote_host:
+      runs-on: ubuntu24.04
+      needs: build_and_push_to_dockerhub
+      steps:
+        - name: Check out the repo for deploy
+          uses: actions/checkout@v3
