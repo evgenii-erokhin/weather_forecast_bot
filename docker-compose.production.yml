@@ -2,5 +2,5 @@ version: '3.8'
 
 services:
   weather_forecasting_bot:
-    image: jackdemario/weather-forecasting-bot
+    image: jackdemario/weather-forecast-bot
     env_file: .env
