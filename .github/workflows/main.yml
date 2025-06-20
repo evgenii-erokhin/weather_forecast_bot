@@ -27,11 +27,11 @@ jobs:
 
         - name: Run flake8
           run: |
-            flake8 ./src
+            uv run flake8 ./src
 
         - name: Run isort
           run: |
-            isort ./src --check --diff
+            uv run isort ./src --check --diff
 
     build_and_push_to_dockerhub:
       runs-on: ubuntu24.04
