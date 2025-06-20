@@ -82,10 +82,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
         chat_id=chat_id,
         text=(
-             'Добро пожаловать! Я бот прогноза погоды. \n\n'
-             'Чтобы узнать прогноз, отправьте мне свою геопозицию. '
-             'Далее выберите в Меню интересующий тип прогноза '
-             'и я пришлю его Вам'
+            'Добро пожаловать! Я бот прогноза погоды. \n\n'
+            'Чтобы узнать прогноз, отправьте мне свою геопозицию. '
+            'Далее выберите в Меню интересующий тип прогноза '
+            'и я пришлю его Вам'
         )
     )
 
@@ -105,9 +105,9 @@ async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     write_data_to_database(chat_id, latitude, longitude)
 
     await context.bot.send_message(
-         chat_id=chat_id,
-         text='Спасибо, Ваши координаты получены!'
-     )
+        chat_id=chat_id,
+        text='Спасибо, Ваши координаты получены!'
+    )
 
 
 async def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
@@ -239,7 +239,7 @@ def prepare_message(data: List[tuple]) -> str:
             f'Ветер: {WIND_DIRECTION[row[WIND_ORIENTATION]]}, '
             f'{row[WIND_SPEED]} м/с, '
             f'{row[DESCRIPTION]}.\n\n'
-            )
+        )
     return forecast
 
 

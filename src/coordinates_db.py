@@ -16,7 +16,7 @@ def create_database() -> None:
                 """)
 
 
-def write_data_to_database(chat_id: int, latitude: float,longitude: float) -> None:
+def write_data_to_database(chat_id: int, latitude: float, longitude: float) -> None:
     """
     Записывает переданные координаты в базу данных.
     """
