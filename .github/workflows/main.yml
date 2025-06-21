@@ -6,6 +6,8 @@ on:
     paths:
     - 'src/**'
 
+  workflow_dispatch:
+
 jobs:
     # Пока только проверка линтером. TODO: Добавить тесты
     tests:
@@ -84,10 +86,14 @@ jobs:
 
         - name: Create .env file and fill it with secrets
           uses: appleboy/ssh-action@master
-          run: |
-            touch .env
-            echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
-            echo "GISMETEO_TOKEN=${{ secrets.GISMETEO_TOKEN }}" >> .env
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USER }}
+            key: ${{ secrets.SSH_KEY }}
+            script: |
+              cd weather-forecast-bot || mkdir weather-forecast-bot && cd weather-forecast-bot
+              echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" > .env
+              echo "GISMETEO_TOKEN=${{ secrets.GISMETEO_TOKEN }}" >> .env
 
         - name: Copy docker-compose.yml to remote server
           uses: appleboy/scp-action@master
@@ -95,7 +101,7 @@ jobs:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
             key: ${{ secrets.SSH_KEY }}
-            source: "./docker-compose.production.yml, ./.env"
+            source: "./docker-compose.production.yml"
             target: "weather-forecast-bot"
 
         - name: Execut commands on remote server to deploy
