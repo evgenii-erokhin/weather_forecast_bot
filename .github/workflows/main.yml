@@ -75,7 +75,37 @@ jobs:
 
     deploy_to_remote_server:
       runs-on: ubuntu-latest
-      needs: build_and_push_to_dockerhub
+      needs:
+        - tests
+        - build_and_push_to_dockerhub
       steps:
         - name: Check out the repo for deploy
           uses: actions/checkout@v3
+
+        - name: Create .env file and fill it with secrets
+          uses: appleboy/ssh-action@master
+          run: |
+            touch .env
+            echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
+            echo "GISMETEO_TOKEN=${{ secrets.GISMETEO_TOKEN }}" >> .env
+
+        - name: Copy docker-compose.yml to remote server
+          uses: appleboy/scp-action@master
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USER }}
+            key: ${{ secrets.SSH_KEY }}
+            source: "./docker-compose.production.yml, ./.env"
+            target: "weather-forecast-bot"
+
+        - name: Execut commands on remote server to deploy
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USER }}
+            key: ${{ secrets.SSH_KEY }}
+            script: |
+              cd weather-forecast-bot
+              docker compose pull
+              docker compose down
+              docker compose up -d
