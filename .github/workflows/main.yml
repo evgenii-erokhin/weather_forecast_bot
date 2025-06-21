@@ -115,5 +115,6 @@ jobs:
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
               cd /home/${{ secrets.USER }}/weather-forecast-bot
-              ls -lah
-
+              docker compose pull
+              docker compose down
+              docker compose up -d
