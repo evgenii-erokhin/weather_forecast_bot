@@ -114,6 +114,6 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
-              echo "testing connection"
-              docker compose --version
+              cd /home/${{ secrets.USER }}/weather-forecast-bot
+              ls -lah
 
