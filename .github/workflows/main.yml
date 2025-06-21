@@ -106,7 +106,7 @@ jobs:
             source: "./docker-compose.production.yml"
             target: "weather-forecast-bot"
 
-        - name: Execut commands on remote server to deploy
+        - name: Execute commands on remote server to deploy
           uses: appleboy/ssh-action@master
           with:
             host: ${{ secrets.HOST }}
@@ -114,7 +114,6 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
-              cd weather-forecast-bot
-              docker compose pull
-              docker compose down
-              docker compose up -d
+              echo "testing connection"
+              docker compose --version
+
