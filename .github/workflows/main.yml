@@ -90,6 +90,7 @@ jobs:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
             key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
               cd weather-forecast-bot || mkdir weather-forecast-bot && cd weather-forecast-bot
               echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" > .env
@@ -110,6 +111,7 @@ jobs:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
             key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
               cd weather-forecast-bot
               docker compose pull
