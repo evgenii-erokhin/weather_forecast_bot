@@ -13,7 +13,7 @@
 ![Python Telegram Bot](https://img.shields.io/badge/Python_Telegram_Bot-336d9b.svg?style=for-the-badge)
 ![Aiohttp](https://img.shields.io/badge/aiohttp-%232C5bb4.svg?style=for-the-badge&logo=aiohttp&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
-
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
 ### Подготовка к использованию:
 1. Используя `BotFather` создать телеграм бот.
