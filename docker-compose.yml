@@ -4,3 +4,8 @@ services:
   weather_forecasting_bot:
     build: ./
     env_file: .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
