@@ -1,9 +1,36 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16
+    container_name: weather-forecast-postgres
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   weather_forecasting_bot:
     image: jackdemario/weather-forecast-bot
-    env_file: .env
+    environment:
+      API_KEY: "${API_KEY}"
+      TELEGRAM_TOKEN: "${TELEGRAM_TOKEN}"
+      DB_USER: "${POSTGRES_USER}"
+      DB_PASSWORD: "${POSTGRES_PASSWORD}"
+      DB_NAME: "${POSTGRES_DB}"
+      DB_HOST: "${PGHOST}"
+      DB_PORT: "${PGPORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
     logging:
       driver: "json-file"
       options:

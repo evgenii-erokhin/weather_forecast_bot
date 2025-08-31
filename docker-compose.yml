@@ -1,9 +1,27 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16
+    container_name: weather-forecast-postgres
+    env_file: .env
+    ports:
+      - "${PGPORT}:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   weather_forecasting_bot:
+    container_name: weather-forecast-app
     build: ./
     env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     logging:
       driver: "json-file"
       options:
