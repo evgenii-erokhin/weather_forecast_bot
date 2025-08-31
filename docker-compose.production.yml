@@ -6,7 +6,7 @@ services:
     container_name: weather-forecast-postgres
     env_file: .env
     ports:
-      - "${DB_PORT}:5432"
+      - "${PGPORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
