@@ -1,4 +1,4 @@
-version: '3.8'
+---
 
 services:
   postgres:
@@ -26,3 +26,5 @@ services:
       options:
         max-size: "30m"
         max-file: "5"
+volumes:
+  pgdata:
