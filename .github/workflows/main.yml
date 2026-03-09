@@ -122,4 +122,4 @@ jobs:
               cd weather-forecast-bot
               docker compose -f docker-compose.production.yml pull
               docker compose -f docker-compose.production.yml down
-              docker compose -f docker-compose.production.yml -p up -d
+              docker compose -f docker-compose.production.yml up -d
