@@ -2,7 +2,7 @@
 services:
   database:
     image: postgres:16
-    container_name: weather-forecast-postgres
+    container_name: weather-database
     env_file: .env
     ports:
       - "${PGPORT}:5432"
