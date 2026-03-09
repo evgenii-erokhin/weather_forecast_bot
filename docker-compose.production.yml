@@ -1,7 +1,6 @@
 ---
-
 services:
-  postgres:
+  database:
     image: postgres:16
     container_name: weather-forecast-postgres
     env_file: .env
@@ -15,8 +14,9 @@ services:
       timeout: 5s
       retries: 5
 
-  weather_forecasting_bot:
+  tg_bot:
     image: jackdemario/weather-forecast-bot
+    container_name: weather-telegram-bot
     env_file: .env
     depends_on:
       postgres:
