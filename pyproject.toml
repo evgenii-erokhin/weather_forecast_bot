@@ -11,5 +11,6 @@ dependencies = [
     "psycopg-binary>=3.2.9",
     "pydantic-settings>=2.10.1",
     "python-telegram-bot>=22.1",
+    "redis>=7.3.0",
     "sqlalchemy>=2.0.41",
 ]

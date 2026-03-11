@@ -17,6 +17,7 @@ from config import (CURRENT_ENDPOINT, DATE, DESCRIPTION, ELEMENT,
                     WIND_ORIENTATION, WIND_SPEED)
 from db.query.orm import (create_data_base_and_tables, get_coordinates,
                           update_coordinates)
+from cache.redis_cache import set_cached_forecast, get_cached_forecast
 
 
 async def special_cases(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -58,7 +59,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text=(
             "Добро пожаловать! Я бот прогноза погоды. \n\n"
             "Чтобы узнать прогноз погоды: "
-            "1. Отправьте мне свою геопозицию через вложение. "
+            "1. Отправьте мне свою геопозицию через вложение. (Каждый раз, как меняется ваша геометка, нужно будет повторно отправлять координаты)."
             "2. Выберите в Меню интересующий тип прогноза погоды. \n\n"
             "Доступные команды: \n"
             "`/current_weatrher` - прогноз погоды на текущее время \n"
@@ -93,12 +94,13 @@ async def get_coordinate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]:
+async def get_api_answer(chat_id: int, url: str, kind: str, days: int = None) -> List[dict]:
     """
     Отправляет GET-запрос к API Gismeteo и возвращает данные прогноза погоды.
 
     :param chat_id: ID чата Telegram, откуда извлекаются координаты
     :param url: URL-эндпоинт запроса
+    :param kind: Тип прогноза погоды, требуется дл формирования ключа в Redis
     :param days: Количество дней прогноза (опционально)
     :return: Список словарей с погодными данными
     :raise exceptions.IncorrectStatusCode: Если статус ответа не 200 OK
@@ -112,6 +114,10 @@ async def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]
     }
     if days:
         payload["days"] = days
+
+    cached_response = await get_cached_forecast(kind, latitude, longitude)
+    if cached_response:
+        return cached_response
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -136,7 +142,9 @@ async def get_api_answer(chat_id: int, url: str, days: int = None) -> List[dict]
             logging.info(
                 f"Request to API Gismeteo was successful for user_id - {chat_id}"
             )
-            return json_response.get("response")
+            response = json_response.get("response")
+            await set_cached_forecast(kind, latitude, longitude, response)
+            return response
     except aiohttp.ClientError as error:
         logging.error("Cannot connect to API Gismeteo. User_id - {chat_id}")
         raise exceptions.ConnectionFailed(f"Connection failed - {error}")
@@ -245,7 +253,7 @@ async def get_current_weather(update: Update, context: ContextTypes.DEFAULT_TYPE
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = await get_api_answer(chat_id, CURRENT_ENDPOINT)
+    response = await get_api_answer(chat_id, CURRENT_ENDPOINT, "now")
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     logging.info(
@@ -267,7 +275,7 @@ async def get_weather_forecast_today(
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = await get_api_answer(chat_id, FORCAST_ENDPOINT, ONE_DAY)
+    response = await get_api_answer(chat_id, FORCAST_ENDPOINT, "today", ONE_DAY)
     data = parse_weather_data(response, False)
     message = prepare_message(data)
     logging.info(
@@ -287,7 +295,7 @@ async def get_forecast_tomorrow(update: Update, context: ContextTypes.DEFAULT_TY
     :return: None
     """
     chat_id = update.effective_chat.id
-    response = await get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, TWO_DAYS)
+    response = await get_api_answer(chat_id, FORCAST_ENDPOINT + TOMORROW, "tomorrow", TWO_DAYS)
     data = parse_weather_data(response, True)
     message = prepare_message(data)
     logging.info(

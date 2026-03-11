@@ -7,6 +7,8 @@ load_dotenv()
 GISMETEO_TOKEN = os.getenv("API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
+REDIS_TTL = 600
+
 FORCAST_ENDPOINT = "https://api.gismeteo.net/v2/weather/forecast/?"
 CURRENT_ENDPOINT = "https://api.gismeteo.net/v2/weather/current/?"
 TOMORROW = "aggregate/?"

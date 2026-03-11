@@ -1,11 +1,9 @@
 ---
 services:
-  database:
+  postgres:
     image: postgres:16
     container_name: weather-database
     env_file: .env
-    ports:
-      - "${PGPORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -14,17 +12,35 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    container_name: weather-redis-cache
+    image: redis:8.6
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: [ "sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\" --appendonly yes" ]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   tg_bot:
-    image: jackdemario/weather-forecast-bot
     container_name: weather-telegram-bot
+    build: ./
     env_file: .env
     depends_on:
-      database:
+      postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     logging:
       driver: "json-file"
       options:
         max-size: "30m"
         max-file: "5"
+
 volumes:
   pgdata:
+  redis-data:
