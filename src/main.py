@@ -10,6 +10,7 @@ from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
 import exceptions
+from cache.redis_cache import get_cached_forecast, set_cached_forecast
 from config import (CURRENT_ENDPOINT, DATE, DESCRIPTION, ELEMENT,
                     FORCAST_ENDPOINT, HEADERS, HUMIDITY, OFFSET, OFFSET_DATE,
                     OFFSET_TIME, ONE_DAY, PRESSURE, TELEGRAM_TOKEN,
@@ -17,7 +18,6 @@ from config import (CURRENT_ENDPOINT, DATE, DESCRIPTION, ELEMENT,
                     WIND_ORIENTATION, WIND_SPEED)
 from db.query.orm import (create_data_base_and_tables, get_coordinates,
                           update_coordinates)
-from cache.redis_cache import set_cached_forecast, get_cached_forecast
 
 
 async def special_cases(update: Update, context: ContextTypes.DEFAULT_TYPE):

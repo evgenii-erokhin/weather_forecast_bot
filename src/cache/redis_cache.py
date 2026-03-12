@@ -8,7 +8,6 @@ from redis.asyncio import Redis
 
 from config import REDIS_TTL
 
-
 redis_host = os.getenv('REDIS_HOST', 'localhost')
 port = int(os.getenv('REDIS_PORT', 6379))
 ttl = REDIS_TTL
@@ -28,9 +27,10 @@ async def set_cached_forecast(kind: str, latitude: float, longitude: float, api_
     """
     key = f'{kind}:{latitude}:{longitude}'
     data = json.dumps(api_response)
-    await  redis_client.setex(key, ttl, data)
+    await redis_client.setex(key, ttl, data)
 
-async def get_cached_forecast(kind: str, latitude: float, longitude:float) -> dict:
+
+async def get_cached_forecast(kind: str, latitude: float, longitude: float) -> dict:
     """
     Ответ пользователю из кэша Redis прогноз погоды по полученым координатам.
     :param kind: Тип прогноза: now, today, tomorrow
@@ -47,7 +47,6 @@ async def get_cached_forecast(kind: str, latitude: float, longitude:float) -> di
     except RedisError as e:
         logging.error(f"Error getting cached forecast: {e}")
         raise e
-
 
 
 if __name__ == "__main__":
