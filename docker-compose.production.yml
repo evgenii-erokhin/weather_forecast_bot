@@ -28,7 +28,7 @@ services:
 
   tg_bot:
     container_name: weather-telegram-bot
-    build: ./
+    image: jackdemario/weather-forecast-bot
     env_file: .env
     depends_on:
       postgres:
