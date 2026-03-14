@@ -114,7 +114,7 @@ jobs:
               REDIS_PORT=${{ secrets.REDIS_PORT }}
               REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
               EOF
-             chmod 600 .env
+              chmod 600 .env
 
         - name: Copy docker-compose.yml to remote server
           uses: appleboy/scp-action@master
