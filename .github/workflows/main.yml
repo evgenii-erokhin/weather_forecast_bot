@@ -91,7 +91,7 @@ jobs:
             username: ${{ secrets.USER }}
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
-            script:
+            script: |
               cd weather-forecast-bot || mkdir weather-forecast-bot && cd weather-forecast-bot
               cat > .env << 'EOF'
               +-----------------------------------------------------+
